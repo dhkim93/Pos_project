@@ -1,14 +1,38 @@
-package com.example.kcwoo326.customerapp;
+package com.example.kcwoo326.cutomerscareapp.activity;
 
-import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
+import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.example.kcwoo326.cutomerscareapp.R;
+import com.example.kcwoo326.cutomerscareapp.adapter.CListViewAdapter;
+import com.example.kcwoo326.cutomerscareapp.adapter.ListViewAdapter;
+import com.example.kcwoo326.cutomerscareapp.app.AppConfig;
+import com.example.kcwoo326.cutomerscareapp.app.AppController;
+import com.example.kcwoo326.cutomerscareapp.helper.SQLiteHandler;
+import com.example.kcwoo326.cutomerscareapp.helper.SessionManager;
+import com.example.kcwoo326.cutomerscareapp.listitem.CCareListItem;
+import com.example.kcwoo326.cutomerscareapp.listitem.MainListItem;
+import com.example.kcwoo326.cutomerscareapp.listitem.WaitingListItem;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,50 +43,539 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-public class MainActivity extends Activity {
-    ListView listView;
-    ArrayList<ListItem> listItem = new ArrayList<>();
-    ArrayList<TableListItem> tableListItem = new ArrayList<>();
-    ListViewAdapter adapter;
-    ShopTableDown task;
-    TextView txtView;
-    String imgUrl = "http://wlsdnghkd123.iptime.org:8080/imagelist/";
+public class MainActivity extends AppCompatActivity{
+    int MAX_PAGE = 2;
+    Fragment cur_fragment = new Fragment();
+    static ViewPager viewpager;
+    PWaitingTableDown task;
+    static ArrayList<MainListItem> mainListItems = new ArrayList<>();
+    SessionManager session;
+    SQLiteHandler db;
+    static vpAdapter vpadapter;
+    static String name, shopnum;
+
+    static WaitingLayout waitingLayout;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        listView = (ListView) findViewById(R.id.listView);
 
-        txtView = (TextView) findViewById(R.id.txtView);
+        //task = new PWaitingTableDown();
+        //task.execute("http://wlsdnghkd123.iptime.org:8080/ccaretable.php");
 
+        // SqLite database handler
+        db = new SQLiteHandler(getApplicationContext());
 
+        // session manager
+        session = new SessionManager(getApplicationContext());
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getApplicationContext(), ShopInfo.class);
-                intent.putExtra("position", position);
+        if (!session.isLoggedIn()) {
+            logoutUser();
+        }
 
-                String[] strings = new String[]{listItem.get(position).getData(0), listItem.get(position).getData(1), listItem.get(position).getData(2), listItem.get(position).getData(3),
-                        listItem.get(position).getData(4), listItem.get(position).getData(5), listItem.get(position).getData(6), listItem.get(position).getData(7)};
-                intent.putExtra("string", strings);
-                startActivity(intent);
-            }
-        });
+        // Fetching user details from SQLite
+        HashMap<String, String> user = db.getUserDetails();
 
+        name = user.get("name");
+        setTitle(name);
 
+        shopnum = user.get("shopnum");
+        Log.e("hiii", "name" + shopnum);
+        vpadapter = new vpAdapter(getSupportFragmentManager());
+        viewpager = (ViewPager) findViewById(R.id.viewpager);
+        viewpager.setAdapter(vpadapter);
+    }
+    public void fragmentUpdate(){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        Fragment fragment = fragmentManager.findFragmentById(R.id.ccare_layout);
 
-        task = new ShopTableDown();
-        task.execute("http://wlsdnghkd123.iptime.org:8080/shoptable.php");
+       fragmentManager.beginTransaction().replace(R.id.ccare_layout, new CCareLayout(), CCareLayout.TAG2).commitNow();
 
     }
 
-    private class ShopTableDown extends AsyncTask<String, Integer, String> {
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_loggout:
+                logoutUser();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void logoutUser() {
+        session.setLogin(false);
+
+        db.deleteUsers();
+
+        // Launching the login activity
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+
+    private class vpAdapter extends FragmentPagerAdapter {
+
+        LayoutInflater inflater;
+
+        public vpAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            if (position < 0 || MAX_PAGE <= position)
+                return null;
+            switch (position) {
+                case 0:
+                    cur_fragment = new WaitingLayout();
+                    break;
+
+                case 1:
+                    cur_fragment = new CCareLayout();
+                    break;
+
+            }
+            return cur_fragment;
+        }
+
+        @Override
+        public int getCount() {
+            return MAX_PAGE;
+        }
+
+        public int getItemPosition(Object object){
+           return POSITION_NONE;
+        }
+        public void dataSetChanged(){
+
+        }
+
+    }
+
+    public static class WaitingLayout extends android.support.v4.app.Fragment {
+        TextView callnum;
+        TextView waitingteam;
+        ListView waitingList;
+        ListViewAdapter adapter;
+        TextView noteam;
+        private ProgressDialog pDialog;
+        private static final String TAG1 = "1";
+        static int wt = 0;
+        static ArrayList<WaitingListItem> waitingListItem = new ArrayList<>();
+
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+
+        }
+
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View view = inflater.inflate(R.layout.waiting_layout, container, false);
+
+            waitingList = (ListView) view.findViewById(R.id.waitingList);
+            waitingteam = (TextView) view.findViewById(R.id.waitingteam);
+            callnum = (TextView) view.findViewById(R.id.callnum);
+            noteam = (TextView) view.findViewById(R.id.noteam);
+            pDialog = new ProgressDialog(getActivity());
+            pDialog.setCancelable(false);
+
+            getCCareTable(shopnum, "0");
+            Log.e("hiii", "onCreateView");
+
+            return view;
+        }
+
+        public void onViewCreated(final View view, Bundle savedInstanceState) {
+
+        }
+
+        public void onResume() {
+
+            super.onResume();
+        }
+
+        private void setCCareTable(final String waitingnum) {
+
+            // Tag used to cancel the request
+            String tag_string_req = "req_getccaretabledata";
+
+
+            StringRequest strReq = new StringRequest(Request.Method.POST,
+                    AppConfig.URL_SETCCARETABLE, new Response.Listener<String>() {
+
+                @Override
+                public void onResponse(String response) {
+                    //Log.d(TAG, "Register Response: " + response.toString());
+
+                    try {
+                        getCCareTable(shopnum, "0");
+
+                        ((MainActivity) getActivity()).fragmentUpdate();
+
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    //Log.e(TAG, "Registration Error: " + error.getMessage());
+
+                }
+            }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    // Posting params to register url
+                    Map<String, String> params = new HashMap<String, String>();
+
+                    params.put("waitingnum", waitingnum);
+
+                    return params;
+                }
+            };
+
+            // Adding request to request queue
+            AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+        }
+
+
+        private void getCCareTable(final String shopnum, final String whetherthecall) {
+
+            // Tag used to cancel the request
+            String tag_string_req = "req_getccaretabledata";
+
+            pDialog.setMessage("Please Wait ...");
+            showDialog();
+
+            StringRequest strReq = new StringRequest(Request.Method.POST,
+                    AppConfig.URL_CCARETABLE, new Response.Listener<String>() {
+
+                @Override
+                public void onResponse(String response) {
+                    //Log.d(TAG, "Register Response: " + response.toString());
+                    hideDialog();
+                    Log.e("hiii", "waiting의 getCCareTalbe함수이다.");
+                    try {
+                        JSONObject jObj = new JSONObject(response);
+
+                        JSONArray ja = jObj.getJSONArray("results");
+                        wt = 0;
+                        waitingListItem.clear();
+                        for (int i = 0; i < ja.length(); i++) {
+                            wt++;
+                            JSONObject jo = ja.getJSONObject(i);
+                            String userid = jo.getString("userid");
+                            String waitingnum = jo.getString("waitingnum");
+                            String persons = jo.getString("persons");
+                            String issuingtime = jo.getString("issuingtime");
+
+                            waitingListItem.add(new WaitingListItem(waitingnum, userid, persons, issuingtime));
+                        }
+
+                        if (waitingListItem.isEmpty()) {
+                            waitingList.setVisibility(View.GONE);
+                            noteam.setVisibility(View.VISIBLE);
+                            waitingteam.setText("현재 대기 팀 : " + wt);
+                        } else {
+                            Log.e("hiii", "값1 : " + waitingListItem.get(0).getData(2));
+                            waitingteam.setText("현재 대기 팀 : " + wt);
+                            adapter = new ListViewAdapter(getActivity(), R.layout.item_list, waitingListItem, new ListViewAdapter.OnButtonClickListener() {//어댑터에서 위젯등의 특정 행동 여부를 액티비티로 받아오고 싶을 떄 인터페이스사용!
+                                public void onButtonClickListener(int position) {
+                                    Log.e("hiii", "listener");
+                                    // callnum.setText(waitingListItem.get(position).getData(2) + " 번 고객님");
+                                    //((MainActivity) getActivity()).task.execute("http://wlsdnghkd123.iptime.org:8080/ccaretable.php");
+
+
+                                    String waitingnum = waitingListItem.get(position).getData(0);
+                                    setCCareTable(waitingnum);
+
+                                    //viewpager.findViewWithTag("ccare");
+
+                                }
+                            });
+                            waitingList.setAdapter(adapter);
+                        }
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    //Log.e(TAG, "Registration Error: " + error.getMessage());
+                    Toast.makeText(getActivity(),
+                            error.getMessage(), Toast.LENGTH_LONG).show();
+                    hideDialog();
+                }
+            }) {
+
+                @Override
+                protected Map<String, String> getParams() {
+                    // Posting params to register url
+                    Map<String, String> params = new HashMap<String, String>();
+
+                    params.put("shopnum", shopnum);
+                    params.put("whetherthecall", whetherthecall);
+
+                    return params;
+                }
+
+            };
+
+            // Adding request to request queue
+            AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+        }
+
+        private void showDialog() {
+            // if (!pDialog.isShowing())
+            pDialog.show();
+        }
+
+        private void hideDialog() {
+            //  if (pDialog.isShowing())
+            pDialog.dismiss();
+        }
+
+
+    }
+
+    public static class CCareLayout extends android.support.v4.app.Fragment {
+        static ListView ccarelist;
+        static ArrayList<CCareListItem> cCareListItems = new ArrayList<>();
+        TextView nohistory;
+        static CListViewAdapter cAdapter;
+        private ProgressDialog pDialog;
+        private static final String TAG2 = "2";
+        static CCareLayout cCareLayout;
+       
+
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            Log.e("hiii", "onCreateView2");
+
+            View view = inflater.inflate(R.layout.ccare_layout, container, false);
+            view.setTag("ccare_layout");
+            ccarelist = (ListView) view.findViewById(R.id.ccarelist);
+
+            nohistory = (TextView) view.findViewById(R.id.nohistory);
+
+            pDialog = new ProgressDialog(getActivity());
+            pDialog.setCancelable(false);
+
+            getCCareTable(shopnum, "1");
+            return view;
+        }
+
+        public void onViewCreated(View view, Bundle savedInstanceState) {
+
+
+            /*for (int i = 0; i < mainListItems.size(); i++) {
+
+                if (mainListItems.get(i).getData(0).equals("123456") && mainListItems.get(i).getData(3).equals("1")) {
+
+                    cCareListItems.add(new CCareListItem(mainListItems.get(i).getData()));
+                    //mainListItems.get(i).getData(0), mainListItems.get(i).getData(1), mainListItems.get(i).getData(2),
+                    //        mainListItems.get(i).getData(3), mainListItems.get(i).getData(4), mainListItems.get(i).getData(5)
+                }
+            }*/
+
+
+        }
+
+        public void onResume() {
+
+
+            super.onResume();
+        }
+
+        private void setCCareTable(final String waitingnum) {
+
+            // Tag used to cancel the request
+            String tag_string_req = "req_getccaretabledata";
+
+
+            StringRequest strReq = new StringRequest(Request.Method.POST,
+                    AppConfig.URL_SETCCARETABLE, new Response.Listener<String>() {
+
+                @Override
+                public void onResponse(String response) {
+
+                    try {
+
+                        getCCareTable(shopnum, "1");
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+
+                }
+            }) {
+                @Override
+                protected Map<String, String> getParams() {
+                    // Posting params to register url
+                    Map<String, String> params = new HashMap<String, String>();
+
+                    params.put("waitingnum", waitingnum);
+
+                    return params;
+                }
+
+            };
+
+            // Adding request to request queue
+            AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+        }
+
+    public void getCCareTable(final String shopnum, final String whetherthecall) {
+
+        // Tag used to cancel the request
+        String tag_string_req = "req_getccaretabledata";
+        pDialog.setMessage("Please Wait ...");
+        showDialog();
+        StringRequest strReq = new StringRequest(Request.Method.POST,
+                AppConfig.URL_CCARETABLE, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                //Log.d(TAG, "Register Response: " + response.toString());
+                    hideDialog();
+                Log.e("hiii", "ccare의 getCCareTalbe함수이다.");
+                try {
+
+                    JSONObject jObj = new JSONObject(response);
+                    // boolean error = jObj.getBoolean("error");
+                    // if (!error) {
+                    // User successfully stored in MySQL
+                    // Now store the user in sqlite
+                    // String uid = jObj.getString("uid");
+
+                    JSONArray ja = jObj.getJSONArray("results");
+                    cCareListItems.clear();
+                    for (int i = 0; i < ja.length(); i++) {
+
+                        JSONObject jo = ja.getJSONObject(i);
+                        String userid = jo.getString("userid");
+                        String waitingnum = jo.getString("waitingnum");
+                        String persons = jo.getString("persons");
+                        String issuingtime = jo.getString("issuingtime");
+
+                        cCareListItems.add(new CCareListItem(waitingnum, userid, persons, issuingtime));
+                    }
+
+                    if (cCareListItems.isEmpty()) {
+                        ccarelist.setVisibility(View.GONE);
+                        nohistory.setVisibility(View.VISIBLE);
+                    } else {
+                        Log.e("hiii", "값2 : " + cCareListItems.get(0).getData(2));
+                        cAdapter = new CListViewAdapter(getActivity(), R.layout.item_list, cCareListItems, new CListViewAdapter.OnCButtonClickListener() {//어댑터에서 위젯등의 특정 행동 여부를 액티비티로 받아오고 싶을 떄 인터페이스사용!
+                            public void onCButtonClickListener(int position) {
+                                Log.e("hiii", "listener2");
+                                //((MainActivity) getActivity()).task.execute("http://wlsdnghkd123.iptime.org:8080/ccaretable.php");
+                                String waitingnum = cCareListItems.get(position).getData(0);
+                                setCCareTable(waitingnum);
+                                vpadapter.notifyDataSetChanged();
+                            }
+
+                        });
+                        ccarelist.setAdapter(cAdapter);
+                        ccarelist.setSelection(cCareListItems.size());
+                    }
+
+                    // Inserting row in users table
+                    //  db.addUser(shopnum, shopname, uid, created_at);
+
+
+                    // } else {
+
+                    // Error occurred in registration. Get the error
+                    // message
+                    //     String errorMsg = jObj.getString("error_msg");
+                    //     Toast.makeText(getApplicationContext(),
+                    //             errorMsg, Toast.LENGTH_LONG).show();
+                    //  }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                //Log.e(TAG, "Registration Error: " + error.getMessage());
+                Toast.makeText(getActivity(),
+                        error.getMessage(), Toast.LENGTH_LONG).show();
+                hideDialog();
+            }
+        }) {
+
+            @Override
+            protected Map<String, String> getParams() {
+                // Posting params to register url
+                Map<String, String> params = new HashMap<String, String>();
+
+                params.put("shopnum", shopnum);
+                params.put("whetherthecall", whetherthecall);
+
+                return params;
+            }
+
+        };
+
+        // Adding request to request queue
+        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+    }
+
+    private void showDialog() {
+        // if (!pDialog.isShowing())
+         pDialog.show();
+    }
+
+    private void hideDialog() {
+        //  if (pDialog.isShowing())
+        pDialog.dismiss();
+    }
+
+
+
+    }
+
+
+    public class PWaitingTableDown extends AsyncTask<String, Integer, String> {
 
         StringBuilder jsonHtml = new StringBuilder();
+
         @Override
 
         protected String doInBackground(String... urls) {
@@ -93,7 +606,7 @@ public class MainActivity extends Activity {
 
                         BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
 
-                        for (;;) {
+                        for (; ; ) {
 
                             // 웹상에 보여지는 텍스트를 라인단위로 읽어 저장.
 
@@ -120,7 +633,7 @@ public class MainActivity extends Activity {
                 ex.printStackTrace();
 
             }
-
+            Log.e("Hiii", "doInEnd");
             return jsonHtml.toString();
 
 
@@ -128,42 +641,46 @@ public class MainActivity extends Activity {
 
 
         protected void onPostExecute(String str) {
-            Log.e("Hiii", "onPostExecute");
-
-            String shopnum, shopname, callnum, shoppic1, shoppic2, shoppic3, shoppic4, shoppic5;;
-
+            Log.e("Hiii", str);
+            String shopnum, userid, waitingnum, whetherthecall, issuingtime, persons;
             StringBuffer sb = new StringBuffer();
             try {
-
                 JSONObject root = new JSONObject(str);
                 JSONArray ja = root.getJSONArray("results");
-                listItem.clear();
+                mainListItems.clear();
                 for (int i = 0; i < ja.length(); i++) {
                     JSONObject jo = ja.getJSONObject(i);
+                    userid = jo.getString("userid");
+                    whetherthecall = jo.getString("whetherthecall");
                     shopnum = jo.getString("shopnum");
-                    shopname = jo.getString("shopname");
-                    callnum = jo.getString("callnum");
-                    shoppic1 = jo.getString("shoppic1");
-                    shoppic2 = jo.getString("shoppic2");
-                    shoppic3 = jo.getString("shoppic3");
-                    shoppic4 = jo.getString("shoppic4");
-                    shoppic5 = jo.getString("shoppic5");
-                    listItem.add(new ListItem(shopnum, shopname, callnum, imgUrl+shoppic1, imgUrl+shoppic2, imgUrl+shoppic3, imgUrl+shoppic4, imgUrl+shoppic5));
-                    sb.append(shopname + ", " + callnum + "\n");
+                    waitingnum = jo.getString("waitingnum");
+                    issuingtime = jo.getString("issuingtime");
+                    persons = jo.getString("persons");
+
+                    mainListItems.add(new MainListItem(shopnum, userid, waitingnum, whetherthecall, issuingtime, persons));
+
                 }
+
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
-            adapter = new ListViewAdapter(getApplicationContext(), R.layout.item_list, listItem);
-            listView.setAdapter(adapter);
-            txtView.setText(sb.toString());
-            //txtView.setText("tables : " + listItem.get(0).getData(0) + "\nempty : " + listItem.get(0).getData(1));
-            Log.e("Hiii", "adapter");
+            if(mainListItems.isEmpty()){
+
+            }
+           // viewpager = (ViewPager) findViewById(R.id.viewpager);
+           // viewpager.setAdapter(new adapter(getSupportFragmentManager()));
+
+            task = new PWaitingTableDown();
         }
-
-
     }
 
 
 }
+
+
+
+
+
+
