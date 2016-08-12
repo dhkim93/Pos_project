@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.kcwoo326.customerapp" >
+    package="com.example.kcwoo326.posapp" >
 
     <uses-permission android:name="android.permission.INTERNET"/>
 
@@ -18,7 +18,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ShopInfo" android:label="식당 정보" />
     </application>
 
 </manifest>
