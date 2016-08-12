@@ -1,80 +1,54 @@
-package com.example.kcwoo326.customerapp;
+package com.example.kcwoo326.posapp;
 
 /**
- * Created by KimJinWoo on 2016-07-04.
+ * Created by KimJinWoo on 2016-06-30.
  */
-
-
 public class ListItem {
-
 
 
     private String[] mData;
 
 
-
-    public ListItem(String[] data ){
+    public ListItem(String[] data) {
 
         mData = data;
 
     }
 
 
-
-    public ListItem(String shopnum, String shopname, String callnum, String shoppic1, String shoppic2, String shoppic3, String shoppic4, String shoppic5){
-
+    public ListItem(String tablenum, String empty, String shopnum) {
 
 
-        mData = new String[8];
+        mData = new String[3];
 
-        mData[0] = shopnum;
-        mData[1] = shopname;
-        mData[2] = callnum;
-        mData[3] = shoppic1;
-        mData[4] = shoppic2;
-        mData[5] = shoppic3;
-        mData[6] = shoppic4;
-        mData[7] = shoppic5;
+        mData[0] = tablenum;
 
+        mData[1] = empty;
 
-
+        mData[2] = shopnum;
 
 
     }
 
 
+    public String[] getData() {
 
-    public String[] getData(){
-
-        return mData;
+            return mData;
 
     }
 
 
-
-    public String getData(int index){
+    public String getData(int index) {
 
         return mData[index];
 
     }
 
 
-
-    public void setData(String[] data){
+    public void setData(String[] data) {
 
         mData = data;
 
     }
-
-
-
-
-
-
-
 }
-
-
-
-
 
