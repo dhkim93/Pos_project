@@ -14,7 +14,7 @@
             android:hint="대기번호"
             android:gravity="center"
             android:textSize="25dp"
-            android:id="@+id/waitingnum"/>
+            android:id="@+id/cwaitingnum"/>
     </LinearLayout>
     <LinearLayout
         android:layout_gravity="center"
@@ -27,13 +27,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="회원정보 및 인원"
-            android:id="@+id/cinfo"
+            android:id="@+id/ccinfo"
             android:textSize="20dp"/>
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="right"
-            android:id="@+id/issuingtime"
+            android:id="@+id/cissuingtime"
             android:hint="번호 발급 시간"/>
     </LinearLayout>
     <LinearLayout
@@ -46,10 +46,10 @@
             android:gravity="center"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:id="@+id/call"
+            android:id="@+id/cancel"
             android:textSize="25dp"
-            android:text="호출"
-            android:background="#00aa55"/>
+            android:text="철회"
+            android:background="#dd4400"/>
     </LinearLayout>
 
 </LinearLayout>
