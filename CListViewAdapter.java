@@ -12,7 +12,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.kcwoo326.cutomerscareapp.R;
-import com.example.kcwoo326.cutomerscareapp.listitem.WaitingListItem;
+import com.example.kcwoo326.cutomerscareapp.listitem.CCareListItem;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -23,25 +23,25 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 
 /**
- * Created by KimJinWoo on 2016-07-30.
+ * Created by KimJinWoo on 2016-08-02.
  */
-public class ListViewAdapter extends BaseAdapter {
+public class CListViewAdapter extends BaseAdapter {
     // Adapter에 추가된 데이터를 저장하기 위한 ArrayList
-    private ArrayList<WaitingListItem> listViewItemList = new ArrayList<>() ;
+    private ArrayList<CCareListItem> listViewItemList = new ArrayList<>() ;
     private int mResource;
     private Context mContext;
-    Button call;
-    private OnButtonClickListener onButtonClickListener;
+    Button cancel;
+    private OnCButtonClickListener onCButtonClickListener;
 
 
     // ListViewAdapter의 생성자
-    public ListViewAdapter(Context context, int layoutResource, ArrayList<WaitingListItem> listItem, OnButtonClickListener onButtonClickListener) {
-        Log.e("hiii","ListViewAdapter" );
+    public CListViewAdapter(Context context, int layoutResource, ArrayList<CCareListItem> listItem, OnCButtonClickListener onCButtonClickListener) {
+        Log.e("hiii", "ListViewAdapter2");
         this.listViewItemList = listItem;
         this.mContext = context;
-        this.mResource = layoutResource;
-        this.onButtonClickListener = onButtonClickListener;
-    }
+        this.mResource = layoutResource;;
+        this.onCButtonClickListener = onCButtonClickListener;
+}
 
     // Adapter에 사용되는 데이터의 개수를 리턴. : 필수 구현
     @Override
@@ -52,25 +52,25 @@ public class ListViewAdapter extends BaseAdapter {
     // position에 위치한 데이터를 화면에 출력하는데 사용될 View를 리턴. : 필수 구현
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
-        Log.e("hiii","getView" );
+        Log.e("hiii","getView2" );
         final int pos = position;
         final Context context = parent.getContext();
 
         // "listview_item" Layout을 inflate하여 convertView 참조 획득.
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.item_list, parent, false);
+            convertView = inflater.inflate(R.layout.ccare_list, parent, false);
         }
 
         // 화면에 표시될 View(Layout이 inflate된)으로부터 위젯에 대한 참조 획득
 
-        TextView waitingnum = (TextView) convertView.findViewById(R.id.waitingnum) ;
-        TextView cinfo = (TextView) convertView.findViewById(R.id.cinfo) ;
-        TextView issuingtime = (TextView) convertView.findViewById(R.id.issuingtime) ;
-         call = (Button) convertView.findViewById(R.id.call);
+        TextView waitingnum = (TextView) convertView.findViewById(R.id.cwaitingnum) ;
+        TextView cinfo = (TextView) convertView.findViewById(R.id.ccinfo) ;
+        TextView issuingtime = (TextView) convertView.findViewById(R.id.cissuingtime) ;
+        cancel = (Button) convertView.findViewById(R.id.cancel);
 
         // Data Set(listViewItemList)에서 position에 위치한 데이터 참조 획득
-        final WaitingListItem listItem = listViewItemList.get(position);
+        final CCareListItem listItem = listViewItemList.get(position);
 
         // 아이템 내 각 위젯에 데이터 반영
         waitingnum.setText(listItem.getData(0));
@@ -80,7 +80,7 @@ public class ListViewAdapter extends BaseAdapter {
         issuingtime.setText(listItem.getData(3));
         Log.e("hiii","값 : "+ listItem.getData(2)+listItem.getData(1) );
 
-        final ListViewAdapter lvAdapter;
+        final CListViewAdapter lvAdapter;
 
        /* callbtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,12 +89,12 @@ public class ListViewAdapter extends BaseAdapter {
                 context.startActivity(intent);
             }
         });*/
-        call.setOnClickListener(new View.OnClickListener() {
+        cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               // insertToDatabase(listItem.getData(0));
-                onButtonClickListener.onButtonClickListener(position);
-                Log.e("hiii", "onButton");
+                //insertToDatabase(listItem.getData(0));
+                onCButtonClickListener.onCButtonClickListener(position);
+                Log.e("hiii", "onButton2");
             }
         });
 
@@ -179,8 +179,8 @@ public class ListViewAdapter extends BaseAdapter {
     public void addItem(String number) {
 
     }
-    public interface OnButtonClickListener{
-        public void onButtonClickListener(int position);
+    public interface OnCButtonClickListener{
+        public void onCButtonClickListener(int position);
     }
 
 
