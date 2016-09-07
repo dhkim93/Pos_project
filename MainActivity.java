@@ -1,67 +1,56 @@
-package kdh.com.myrestaurant;
+package kdh.com.map;
 
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.support.v7.app.AppCompatActivity;
+import android.Manifest;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.widget.RelativeLayout;
 
-import java.io.ByteArrayOutputStream;
-import java.util.ArrayList;
+import net.daum.mf.map.api.MapPoint;
+import net.daum.mf.map.api.MapView;
+
 
 public class MainActivity extends AppCompatActivity {
-
-    ListView listView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ListView listView ;
-        final RestaurantAdapter myadapter;
-        final ArrayList<Restaurant> r_info_list;
-        Restaurant restaurant1,restaurant2,restaurant3;
-        listView = (ListView)findViewById(R.id.listView);
-        restaurant1 = new Restaurant("우리식당", "서울시 서대문구",  BitmapFactory.decodeResource(getResources(), R.drawable.woori));
-        restaurant2 = new Restaurant("목동분식", "서울시 강서구",  BitmapFactory.decodeResource(getResources(), R.drawable.mokdong));
-        restaurant3 = new Restaurant("봉구스밥버거", "서울시 서대문구",  BitmapFactory.decodeResource(getResources(), R.drawable.bob));
-        r_info_list = new ArrayList<Restaurant>();
-        r_info_list.add(restaurant1);
-        r_info_list.add(restaurant2);
-        r_info_list.add(restaurant3);
 
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
 
-        myadapter = new RestaurantAdapter(getApplicationContext(),R.layout.restaurant_info, r_info_list);
-        listView.setAdapter(myadapter);
+        final MapView mapView = new MapView(this);
+        mapView.setDaumMapApiKey(getString(R.string.API_KEY));
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getApplicationContext(), ImageActivity.class); // 다음넘어갈 화면
-                Bitmap sendBitmap = r_info_list.get(position).image;
+        RelativeLayout container = (RelativeLayout) findViewById(R.id.mapView);
+        container.addView(mapView);
 
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                sendBitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                byte[] byteArray = stream.toByteArray();
+        mapView.setMapCenterPointAndZoomLevel(MapPoint.mapPointWithGeoCoord(37.53737528, 127.00557633), 3, true);
 
-                intent.putExtra("image",byteArray);
-                startActivity(intent);
-            }
-        });
-    }
-}
-class Restaurant {
-    public String name;
-    public String location;
-    public Bitmap image;
+        //mapView.zoomIn(true); //zoom-in 1번
+        //   mapView.zoomOut(true);// zoom-out 1번
 
-    Restaurant(String name, String location,  Bitmap image){
-        this.image = image;
-        this.name =name;
-        this.location = location;
+       /* MapPOIItem marker = new MapPOIItem();
+        marker.setItemName("Default Marker");
+        marker.setTag(0);
+        marker.setMapPoint(MapPoint.mapPointWithGeoCoord(37.53737528, 127.00557633));
+        marker.setMarkerType(MapPOIItem.MarkerType.BluePin); // 기본으로 제공하는 BluePin 마커 모양.
+        marker.setSelectedMarkerType(MapPOIItem.MarkerType.RedPin); // 마커를 클릭했을때, 기본으로 제공하는 RedPin 마커 모양.
+        mapView.addPOIItem(marker);
+        */ //default Marker
 
+       /* MapPOIItem customMarker = new MapPOIItem();
+        customMarker.setItemName("Custom Marker");
+        customMarker.setTag(1);
+        customMarker.setMapPoint(MapPoint.mapPointWithGeoCoord(37.53737528, 127.00557633));
+        customMarker.setMarkerType(MapPOIItem.MarkerType.CustomImage); // 마커타입을 커스텀 마커로 지정.
+        customMarker.setCustomImageResourceId(R.drawable.custom_marker_red); // 마커 이미지.
+        customMarker.setCustomImageAutoscale(false); // hdpi, xhdpi 등 안드로이드 플랫폼의 스케일을 사용할 경우 지도 라이브러리의 스케일 기능을 꺼줌.
+        customMarker.setCustomImageAnchor(0.5f, 1.0f); // 마커 이미지중 기준이 되는 위치(앵커포인트) 지정 - 마커 이미지 좌측 상단 기준 x(0.0f ~ 1.0f), y(0.0f ~ 1.0f) 값.
+
+        mapView.addPOIItem(customMarker);
+        */ //custom Marker
+
+        
     }
 }
