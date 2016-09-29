@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="5dp"
+    android:tag="waiting_tag">
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/callnum"
+        android:gravity="center"
+        android:hint="현재 호출 번호"
+        android:textSize="35dp"/>
+    <TextView
+        android:paddingTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/waitingteam"
+        android:text="현재 대기 팀 : "
+        android:textSize="25dp"/>
+    <FrameLayout
+        android:paddingTop="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    <ListView
+        android:id="@+id/waitingList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </ListView>
+    <TextView
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#aaaaaa"
+        android:text="대기팀이 없습니다."
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textSize="40dp"
+        android:visibility="gone"
+        android:id="@+id/noteam"/>
+    </FrameLayout>
+</LinearLayout>
