@@ -11,21 +11,24 @@ $db = new DB_Functions();
 // json response array
 $response = array("error" => FALSE);
 
-if (isset($_POST['email']) && isset($_POST['password'])) {
+if (isset($_POST['user_id']) && isset($_POST['password'])) {
 
     // receiving the post params
-    $email = $_POST['email'];
+    $user_id = $_POST['user_id'];
     $password = $_POST['password'];
+   // $user_id = "slipout123";
+   // $password = "dkwkd326";
+
 
     // get the user by email and password
-    $user = $db->getUserByEmailAndPassword($email, $password);
+    $user = $db->getUserByIdAndPassword($user_id, $password);
 
     if ($user != false) {
         // use is found
         $response["error"] = FALSE;
         $response["uid"] = $user["unique_id"];
         $response["user"]["name"] = $user["name"];
-        $response["user"]["email"] = $user["email"];
+        $response["user"]["user_id"] = $user["user_id"];
         $response["user"]["created_at"] = $user["created_at"];
         $response["user"]["updated_at"] = $user["updated_at"];
         echo json_encode($response);
@@ -38,8 +41,9 @@ if (isset($_POST['email']) && isset($_POST['password'])) {
 } else {
     // required post params is missing
     $response["error"] = TRUE;
-    $response["error_msg"] = "����";
+    $response["error_msg"] = "아이디 또는 패스워드를 입력하세요.";
     echo json_encode($response);
 }
 ?>
+
 

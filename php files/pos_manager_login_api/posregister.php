@@ -20,13 +20,14 @@ if (isset($_POST['password'])) {
         $user = $db->storeUser($password);
         if(!$user){
             $response["error"] = TRUE;
-            $response["error_msg"] = iconv("EUC-KR","UTF-8", "°¡ÀÔ Áß ¾Ë ¼ö ¾ø´Â ¿¡·¯°¡ ¹ß»ýÇÏ¿´½À´Ï´Ù.");
+            $response["error_msg"] = iconv("EUC-KR","UTF-8", "ê°€ìž… ì¤‘ ì•Œ ìˆ˜ ì—†ëŠ” ì—ëŸ¬ê°€ ë°œìƒí•˜ì˜€ìŠµë‹ˆë‹¤.");
             echo json_encode($response);
         }
 } else {
     $response["error"] = TRUE;
-    $response["error_msg"] =  iconv("EUC-KR","UTF-8", "¸ÅÀå°íÀ¯¹øÈ£ È¤Àº ÆÐ½º¿öµå°¡ ºüÁ³½À´Ï´Ù.");
+    $response["error_msg"] =  iconv("EUC-KR","UTF-8", "ë§¤ìž¥ê³ ìœ ë²ˆí˜¸ í˜¹ì€ íŒ¨ìŠ¤ì›Œë“œê°€ ë¹ ì¡ŒìŠµë‹ˆë‹¤.");
     echo json_encode($response);
 }
 ?>
+
 

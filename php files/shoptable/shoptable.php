@@ -1,10 +1,10 @@
 <?
 	error_reporting(0); 
-    // µ¥ÀÌÅÍº£ÀÌ½º Á¢¼Ó ¹®ÀÚ¿­. (dbÀ§Ä¡, À¯Àú ÀÌ¸§, ºñ¹Ð¹øÈ£)
+    // ë°ì´í„°ë² ì´ìŠ¤ ì ‘ì† ë¬¸ìžì—´. (dbìœ„ì¹˜, ìœ ì € ì´ë¦„, ë¹„ë°€ë²ˆí˜¸)
 
-    $connect=mysql_connect( "localhost", "root", "dkwkd326") or  
+    $connect=mysql_connect( "vacantable2.cluxbygujyfw.ap-northeast-2.rds.amazonaws.com", "wlsdnghkd123", "dkwkd326") or  
 
-        die( "SQL server¿¡ ¿¬°áÇÒ ¼ö ¾ø½À´Ï´Ù.");
+        die( "SQL serverì— ì—°ê²°í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
 
  
 
@@ -12,47 +12,47 @@
 
     mysql_query("SET NAMES UTF8");
 
-   // µ¥ÀÌÅÍº£ÀÌ½º ¼±ÅÃ
+   // ë°ì´í„°ë² ì´ìŠ¤ ì„ íƒ
 
    mysql_select_db("vacantable",$connect);
 
  
 
-   // ¼¼¼Ç ½ÃÀÛ
+   // ì„¸ì…˜ ì‹œìž‘
 
    session_start();
 
  
 
-   // Äõ¸®¹® »ý¼º
+   // ì¿¼ë¦¬ë¬¸ ìƒì„±
 
    $sql = "select * from shoptable";
 
  
 
-   // Äõ¸® ½ÇÇà °á°ú¸¦ $result¿¡ ÀúÀå
+   // ì¿¼ë¦¬ ì‹¤í–‰ ê²°ê³¼ë¥¼ $resultì— ì €ìž¥
 
    $result = mysql_query($sql, $connect);
 
-   // ¹ÝÈ¯µÈ ÀüÃ¼ ·¹ÄÚµå ¼ö ÀúÀå.
+   // ë°˜í™˜ëœ ì „ì²´ ë ˆì½”ë“œ ìˆ˜ ì €ìž¥.
 
    $total_record = mysql_num_rows($result);
 
  
 
-   // JSONArray Çü½ÄÀ¸·Î ¸¸µé±â À§ÇØ¼­...
+   // JSONArray í˜•ì‹ìœ¼ë¡œ ë§Œë“¤ê¸° ìœ„í•´ì„œ...
 
    echo "{\"status\":\"OK\",\"num_results\":\"$total_record\",\"results\":[";
 
  
 
-   // ¹ÝÈ¯µÈ °¢ ·¹ÄÚµåº°·Î JSONArray Çü½ÄÀ¸·Î ¸¸µé±â.
+   // ë°˜í™˜ëœ ê° ë ˆì½”ë“œë³„ë¡œ JSONArray í˜•ì‹ìœ¼ë¡œ ë§Œë“¤ê¸°.
 
    for ($i=0; $i < $total_record; $i++)                    
 
    {
 
-      // °¡Á®¿Ã ·¹ÄÚµå·Î À§Ä¡(Æ÷ÀÎÅÍ) ÀÌµ¿  
+      // ê°€ì ¸ì˜¬ ë ˆì½”ë“œë¡œ ìœ„ì¹˜(í¬ì¸í„°) ì´ë™  
 
       mysql_data_seek($result, $i);       
 
@@ -73,7 +73,7 @@
 
  
 
-   // ¸¶Áö¸· ·¹ÄÚµå ÀÌÀü¿£ ,¸¦ ºÙÀÎ´Ù. ±×·¡¾ß µ¥ÀÌÅÍ ±¸ºÐÀÌ µÇ´Ï±ñ.  
+   // ë§ˆì§€ë§‰ ë ˆì½”ë“œ ì´ì „ì—” ,ë¥¼ ë¶™ì¸ë‹¤. ê·¸ëž˜ì•¼ ë°ì´í„° êµ¬ë¶„ì´ ë˜ë‹ˆê¹.  
 
    if($i<$total_record-1){
 
@@ -85,7 +85,7 @@
 
    }
 
-   // JSONArrayÀÇ ¸¶Áö¸· ´Ý±â
+   // JSONArrayì˜ ë§ˆì§€ë§‰ ë‹«ê¸°
 
    echo "]}";
 

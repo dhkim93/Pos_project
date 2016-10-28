@@ -1,4 +1,5 @@
 <?php
+error_reporting(0);
 /**
  * @author Ravi Tamada
  * @link http://www.androidhive.info/2012/01/android-login-and-registration-with-php-mysql-and-sqlite/ Complete tutorial
@@ -38,7 +39,7 @@ if (isset($_POST['shopnum']) && isset($_POST['password'])) {
 } else {
     // required post params is missing
     $response["error"] = TRUE;
-    $response["error_msg"] = "이름, 아이디, 휴대폰 번호, 패스워드를 모두 입력해주세요.";
+    $response["error_msg"] =  iconv("EUC-KR","UTF-8", "이름, 아이디, 휴대폰 번호, 패스워드를 모두 입력해주세요.");
     echo json_encode($response);
 }
 ?>

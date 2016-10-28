@@ -12,14 +12,14 @@ $db = new DB_Functions();
 // json response array
 $response = array("error" => FALSE);
 
-if (isset($_POST['name']) && isset($_POST['user_id']) && isset($_POST['password']) && isset($_POST['phone'])) {
+if (isset($_POST['name']) && isset($_POST['user_id']) && isset($_POST['password'])) {
 
+	
     // receiving the post params
     $name = $_POST['name'];
     $user_id = $_POST['user_id'];
-    $phone = $_POST['phone'];
+    //$phone = $_POST['phone'];
     $password = $_POST['password'];
-    
 
     // check if user is already existed with the same email
     if ($db->isUserExisted($user_id)) {
@@ -29,28 +29,29 @@ if (isset($_POST['name']) && isset($_POST['user_id']) && isset($_POST['password'
         echo json_encode($response);
     } else {
         // create a new user
-        $user = $db->storeUser($name, $user_id, $password, $phone);
+        $user = $db->storeUser($name, $user_id, $password);
         if ($user) {
             // user stored successfully
             $response["error"] = FALSE;
             $response["uid"] = $user["unique_id"];
             $response["user"]["name"] = $user["name"];
             $response["user"]["user_id"] = $user["user_id"];
-            $response["user"]["phone"] = $user["phone"];
+            //$response["user"]["phone"] = $user["phone"];
             $response["user"]["created_at"] = $user["created_at"];
             $response["user"]["updated_at"] = $user["updated_at"];
             echo json_encode($response);
         } else {
             // user failed to store
             $response["error"] = TRUE;
-            $response["error_msg"] = "°¡ÀÔµµÁß ¾Ë ¼ö ¾ø´Â ¿¡·¯°¡ ¹ß»ýÇß½À´Ï´Ù!";
+            $response["error_msg"] = "ê°€ìž…ë„ì¤‘ ì•Œ ìˆ˜ ì—†ëŠ” ì—ëŸ¬ê°€ ë°œìƒí–ˆìŠµë‹ˆë‹¤!";
             echo json_encode($response);
         }
     }
 } else {
     $response["error"] = TRUE;
-    $response["error_msg"] = iconv("EUC-KR","UTF-8", "ÀÌ¸§, ÈÞ´ëÆù ¹øÈ£ ¶Ç´Â ÆÐ½º¿öµå°¡ ºüÁ³½À´Ï´Ù.");
+    $response["error_msg"] = "ì´ë¦„, íœ´ëŒ€í° ë²ˆí˜¸ ë˜ëŠ” íŒ¨ìŠ¤ì›Œë“œê°€ ë¹ ì¡ŒìŠµë‹ˆë‹¤.";
     echo json_encode($response);
 }
 ?>
+
 

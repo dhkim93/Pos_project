@@ -1,8 +1,7 @@
 <?php  
 	error_reporting(0); 
-	$con=mysqli_connect("localhost","root","dkwkd326", "vacantable");  
-	
-	
+	$con=mysqli_connect("vacantable2.cluxbygujyfw.ap-northeast-2.rds.amazonaws.com","wlsdnghkd123","dkwkd326","vacantable");  
+ 
 	mysqli_set_charset($con,"utf8");
   
 	if (mysqli_connect_errno($con))  
@@ -33,3 +32,4 @@
   
 	mysqli_close($con);  
 ?> 
+

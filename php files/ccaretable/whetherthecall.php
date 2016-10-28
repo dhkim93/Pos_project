@@ -1,6 +1,6 @@
 <?php  
 	error_reporting(0); 
-	$con=mysqli_connect("localhost","root","dkwkd326","vacantable");  
+	$con=mysqli_connect("vacantable2.cluxbygujyfw.ap-northeast-2.rds.amazonaws.com","wlsdnghkd123","dkwkd326","vacantable");  
  
 	mysqli_set_charset($con,"utf8");
   
@@ -23,7 +23,7 @@
   	  		echo "success waitingnum :  '$waitingnum'  whetherthecall :  0 ";  
   		}
   		else{  
-   	 		echo 'failure whetherthcallÀÌ 1ÀÏ ¶§';
+   	 		echo 'failure whetherthcallì´ 1ì¼ ë•Œ';
 	 	 } 
 	}else{
 		$result = mysqli_query($con,"update $table set whetherthecall = 1 where waitingnum = $waitingnum");  
@@ -32,10 +32,11 @@
   	  		echo "success waitingnum :  '$waitingnum'  whetherthecall :  1 ";  
   		}  
   		else{  
-   	 		echo 'failure whetherthecallÀÌ 0ÀÏ ¶§';
+   	 		echo 'failure whetherthecallì´ 0ì¼ ë•Œ';
 	 	 } 
 	 }	 
   
   
 	mysqli_close($con);  
 ?> 
+

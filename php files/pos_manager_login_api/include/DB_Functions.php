@@ -39,7 +39,7 @@ class DB_Functions {
         $stmt->bind_param("sss", $uuid, $encrypted_password, $salt);
         $result = $stmt->execute();
         $stmt->close();
-        return $user; //¾Æ·¡ if¹® »ç¿ëÇÏ·Á¸é ÀÌ°Å »©¾ßÇÔ
+        return $user; //ì•„ëž˜ ifë¬¸ ì‚¬ìš©í•˜ë ¤ë©´ ì´ê±° ë¹¼ì•¼í•¨
 
         // check for successful store
       //  if ($result) {
@@ -136,3 +136,4 @@ class DB_Functions {
 }
 
 ?>
+

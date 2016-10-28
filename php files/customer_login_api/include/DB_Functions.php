@@ -25,14 +25,14 @@ class DB_Functions {
      * Storing new user
      * returns user details
      */
-    public function storeUser($name, $email, $password, $phone) {
+    public function storeUser($name, $user_id, $password) {
         $uuid = uniqid('', true);
         $hash = $this->hashSSHA($password);
         $encrypted_password = $hash["encrypted"]; // encrypted password
         $salt = $hash["salt"]; // salt
 
-        $stmt = $this->conn->prepare("INSERT INTO users(unique_id, name, user_id, phone, encrypted_password, salt, created_at) VALUES(?, ?, ?, ?, ?, ?, NOW())");
-        $stmt->bind_param("ssssss", $uuid, $name, $user_id, phone ,$encrypted_password, $salt);
+        $stmt = $this->conn->prepare("INSERT INTO users(unique_id, name, user_id, encrypted_password, salt, created_at) VALUES(?, ?, ?, ?, ?, NOW())");
+        $stmt->bind_param("sssss", $uuid, $name, $user_id, $encrypted_password, $salt);
         $result = $stmt->execute();
         $stmt->close();
 
@@ -53,11 +53,11 @@ class DB_Functions {
     /**
      * Get user by email and password
      */
-    public function getUserByEmailAndPassword($email, $password) {
+    public function getUserByIdAndPassword($user_id, $password) {
 
-        $stmt = $this->conn->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt = $this->conn->prepare("SELECT * FROM users WHERE user_id = ?");
 
-        $stmt->bind_param("s", $email);
+        $stmt->bind_param("s", $user_id);
 
         if ($stmt->execute()) {
             $user = $stmt->get_result()->fetch_assoc();
@@ -80,10 +80,10 @@ class DB_Functions {
     /**
      * Check user is existed or not
      */
-    public function isUserExisted($email) {
-        $stmt = $this->conn->prepare("SELECT email from users WHERE email = ?");
+    public function isUserExisted($user_id) {
+        $stmt = $this->conn->prepare("SELECT user_id from users WHERE user_id = ?");
 
-        $stmt->bind_param("s", $email);
+        $stmt->bind_param("s", $user_id);
 
         $stmt->execute();
 
@@ -129,3 +129,4 @@ class DB_Functions {
 }
 
 ?>
+
