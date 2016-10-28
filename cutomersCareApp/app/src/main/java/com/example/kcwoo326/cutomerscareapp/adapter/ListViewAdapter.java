@@ -78,7 +78,7 @@ public class ListViewAdapter extends BaseAdapter {
             cinfo.setText( "인원 : " + listItem.getData(2) + "명");
         }else  cinfo.setText("회원 id : "+listItem.getData(1) + " | 인원 : " + listItem.getData(2) + "명");
         issuingtime.setText(listItem.getData(3));
-        Log.e("hiii","값 : "+ listItem.getData(2)+listItem.getData(1) );
+        Log.e("hiii","값 : "+ listItem.getData(2)+listItem.getData(1));
 
         final ListViewAdapter lvAdapter;
 

@@ -14,10 +14,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#aaaaaa"
-        android:text="발급 내역이 없습니다."
+        android:text="철회할 내역이 없습니다."
         android:layout_gravity="center"
         android:gravity="center"
-        android:textSize="40dp"
+        android:textSize="37dp"
         android:visibility="gone"
         android:id="@+id/nohistory"/>
     </FrameLayout>

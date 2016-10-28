@@ -77,7 +77,7 @@ public class RegisterActivity extends Activity {
                 String password = inputPassword.getText().toString().trim();
 
                 if ( !password.isEmpty()) {
-                    registerUser( password);
+                    registerUser(password);
                 } else {
                     Toast.makeText(getApplicationContext(),
                             "Please enter your details!", Toast.LENGTH_LONG)
@@ -112,7 +112,7 @@ public class RegisterActivity extends Activity {
         showDialog();
 
         StringRequest strReq = new StringRequest(Method.POST,
-                AppConfig.URL_REGISTER, new Response.Listener<String>() {
+                AppConfig.URL_POSREGISTER, new Response.Listener<String>() {
 
             @Override
             public void onResponse(String response) {

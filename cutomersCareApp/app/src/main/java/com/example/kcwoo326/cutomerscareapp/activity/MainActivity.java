@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity{
         //task.execute("http://wlsdnghkd123.iptime.org:8080/ccaretable.php");
 
         // SqLite database handler
-        db = new SQLiteHandler(getApplicationContext());
+        db        = new SQLiteHandler(getApplicationContext());
 
         // session manager
         session = new SessionManager(getApplicationContext());
@@ -87,6 +87,7 @@ public class MainActivity extends AppCompatActivity{
 
         shopnum = user.get("shopnum");
         Log.e("hiii", "name" + shopnum);
+
         vpadapter = new vpAdapter(getSupportFragmentManager());
         viewpager = (ViewPager) findViewById(R.id.viewpager);
         viewpager.setAdapter(vpadapter);
@@ -94,8 +95,13 @@ public class MainActivity extends AppCompatActivity{
     public void fragmentUpdate(){
         FragmentManager fragmentManager = getSupportFragmentManager();
         Fragment fragment = fragmentManager.findFragmentById(R.id.ccare_layout);
+        fragmentManager.beginTransaction().replace(R.id.ccare_layout, new CCareLayout(), CCareLayout.TAG2).commitNow();
 
-       fragmentManager.beginTransaction().replace(R.id.ccare_layout, new CCareLayout(), CCareLayout.TAG2).commitNow();
+    }
+    public void fragmentUpdate2(){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        Fragment fragment = fragmentManager.findFragmentById(R.id.waiting_layout);
+        fragmentManager.beginTransaction().replace(R.id.waiting_layout, new CCareLayout(), WaitingLayout.TAG1).commitNow();
 
     }
 
@@ -157,7 +163,7 @@ public class MainActivity extends AppCompatActivity{
         }
 
         public int getItemPosition(Object object){
-           return POSITION_NONE;
+            return POSITION_NONE;
         }
         public void dataSetChanged(){
 
@@ -217,7 +223,7 @@ public class MainActivity extends AppCompatActivity{
 
 
             StringRequest strReq = new StringRequest(Request.Method.POST,
-                    AppConfig.URL_SETCCARETABLE, new Response.Listener<String>() {
+                    AppConfig.URL_WHETHERTHECALL, new Response.Listener<String>() {
 
                 @Override
                 public void onResponse(String response) {
@@ -226,7 +232,7 @@ public class MainActivity extends AppCompatActivity{
                     try {
                         getCCareTable(shopnum, "0");
 
-                        ((MainActivity) getActivity()).fragmentUpdate();
+                       //((MainActivity) getActivity()).fragmentUpdate();
 
 
                     } catch (Exception e) {
@@ -266,7 +272,7 @@ public class MainActivity extends AppCompatActivity{
             showDialog();
 
             StringRequest strReq = new StringRequest(Request.Method.POST,
-                    AppConfig.URL_CCARETABLE, new Response.Listener<String>() {
+                    AppConfig.URL_MCCARETABLE, new Response.Listener<String>() {
 
                 @Override
                 public void onResponse(String response) {
@@ -306,7 +312,7 @@ public class MainActivity extends AppCompatActivity{
 
                                     String waitingnum = waitingListItem.get(position).getData(0);
                                     setCCareTable(waitingnum);
-
+                                    vpadapter.notifyDataSetChanged();
                                     //viewpager.findViewWithTag("ccare");
 
                                 }
@@ -367,7 +373,7 @@ public class MainActivity extends AppCompatActivity{
         private ProgressDialog pDialog;
         private static final String TAG2 = "2";
         static CCareLayout cCareLayout;
-       
+
 
 
         @Override
@@ -422,7 +428,7 @@ public class MainActivity extends AppCompatActivity{
 
 
             StringRequest strReq = new StringRequest(Request.Method.POST,
-                    AppConfig.URL_SETCCARETABLE, new Response.Listener<String>() {
+                    AppConfig.URL_WHETHERTHECALL, new Response.Listener<String>() {
 
                 @Override
                 public void onResponse(String response) {
@@ -430,6 +436,7 @@ public class MainActivity extends AppCompatActivity{
                     try {
 
                         getCCareTable(shopnum, "1");
+                       // ((MainActivity) getActivity()).fragmentUpdate2();
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -458,114 +465,114 @@ public class MainActivity extends AppCompatActivity{
             AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
         }
 
-    public void getCCareTable(final String shopnum, final String whetherthecall) {
+        public void getCCareTable(final String shopnum, final String whetherthecall) {
 
-        // Tag used to cancel the request
-        String tag_string_req = "req_getccaretabledata";
-        pDialog.setMessage("Please Wait ...");
-        showDialog();
-        StringRequest strReq = new StringRequest(Request.Method.POST,
-                AppConfig.URL_CCARETABLE, new Response.Listener<String>() {
+            // Tag used to cancel the request
+            String tag_string_req = "req_getccaretabledata";
+            pDialog.setMessage("Please Wait ...");
+            showDialog();
+            StringRequest strReq = new StringRequest(Request.Method.POST,
+                    AppConfig.URL_MCCARETABLE, new Response.Listener<String>() {
 
-            @Override
-            public void onResponse(String response) {
-                //Log.d(TAG, "Register Response: " + response.toString());
+                @Override
+                public void onResponse(String response) {
+                    //Log.d(TAG, "Register Response: " + response.toString());
                     hideDialog();
-                Log.e("hiii", "ccare의 getCCareTalbe함수이다.");
-                try {
+                    Log.e("hiii", "ccare의 getCCareTalbe함수이다.");
+                    try {
 
-                    JSONObject jObj = new JSONObject(response);
-                    // boolean error = jObj.getBoolean("error");
-                    // if (!error) {
-                    // User successfully stored in MySQL
-                    // Now store the user in sqlite
-                    // String uid = jObj.getString("uid");
+                        JSONObject jObj = new JSONObject(response);
+                        // boolean error = jObj.getBoolean("error");
+                        // if (!error) {
+                        // User successfully stored in MySQL
+                        // Now store the user in sqlite
+                        // String uid = jObj.getString("uid");
 
-                    JSONArray ja = jObj.getJSONArray("results");
-                    cCareListItems.clear();
-                    for (int i = 0; i < ja.length(); i++) {
+                        JSONArray ja = jObj.getJSONArray("results");
+                        cCareListItems.clear();
+                        for (int i = 0; i < ja.length(); i++) {
 
-                        JSONObject jo = ja.getJSONObject(i);
-                        String userid = jo.getString("userid");
-                        String waitingnum = jo.getString("waitingnum");
-                        String persons = jo.getString("persons");
-                        String issuingtime = jo.getString("issuingtime");
+                            JSONObject jo = ja.getJSONObject(i);
+                            String userid = jo.getString("userid");
+                            String waitingnum = jo.getString("waitingnum");
+                            String persons = jo.getString("persons");
+                            String issuingtime = jo.getString("issuingtime");
 
-                        cCareListItems.add(new CCareListItem(waitingnum, userid, persons, issuingtime));
+                            cCareListItems.add(new CCareListItem(waitingnum, userid, persons, issuingtime));
+                        }
+
+                        if (cCareListItems.isEmpty()) {
+                            ccarelist.setVisibility(View.GONE);
+                            nohistory.setVisibility(View.VISIBLE);
+                        } else {
+                            Log.e("hiii", "값2 : " + cCareListItems.get(0).getData(2));
+                            cAdapter = new CListViewAdapter(getActivity(), R.layout.item_list, cCareListItems, new CListViewAdapter.OnCButtonClickListener() {//어댑터에서 위젯등의 특정 행동 여부를 액티비티로 받아오고 싶을 떄 인터페이스사용!
+                                public void onCButtonClickListener(int position) {
+                                    Log.e("hiii", "listener2");
+                                    //((MainActivity) getActivity()).task.execute("http://wlsdnghkd123.iptime.org:8080/ccaretable.php");
+                                    String waitingnum = cCareListItems.get(position).getData(0);
+                                    setCCareTable(waitingnum);
+                                    vpadapter.notifyDataSetChanged();
+                                }
+
+                            });
+                            ccarelist.setAdapter(cAdapter);
+                            ccarelist.setSelection(cCareListItems.size());
+                        }
+
+                        // Inserting row in users table
+                        //  db.addUser(shopnum, shopname, uid, created_at);
+
+
+                        // } else {
+
+                        // Error occurred in registration. Get the error
+                        // message
+                        //     String errorMsg = jObj.getString("error_msg");
+                        //     Toast.makeText(getApplicationContext(),
+                        //             errorMsg, Toast.LENGTH_LONG).show();
+                        //  }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
 
-                    if (cCareListItems.isEmpty()) {
-                        ccarelist.setVisibility(View.GONE);
-                        nohistory.setVisibility(View.VISIBLE);
-                    } else {
-                        Log.e("hiii", "값2 : " + cCareListItems.get(0).getData(2));
-                        cAdapter = new CListViewAdapter(getActivity(), R.layout.item_list, cCareListItems, new CListViewAdapter.OnCButtonClickListener() {//어댑터에서 위젯등의 특정 행동 여부를 액티비티로 받아오고 싶을 떄 인터페이스사용!
-                            public void onCButtonClickListener(int position) {
-                                Log.e("hiii", "listener2");
-                                //((MainActivity) getActivity()).task.execute("http://wlsdnghkd123.iptime.org:8080/ccaretable.php");
-                                String waitingnum = cCareListItems.get(position).getData(0);
-                                setCCareTable(waitingnum);
-                                vpadapter.notifyDataSetChanged();
-                            }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    //Log.e(TAG, "Registration Error: " + error.getMessage());
+                    Toast.makeText(getActivity(),
+                            error.getMessage(), Toast.LENGTH_LONG).show();
+                    hideDialog();
+                }
+            }) {
 
-                        });
-                        ccarelist.setAdapter(cAdapter);
-                        ccarelist.setSelection(cCareListItems.size());
-                    }
+                @Override
+                protected Map<String, String> getParams() {
+                    // Posting params to register url
+                    Map<String, String> params = new HashMap<String, String>();
 
-                    // Inserting row in users table
-                    //  db.addUser(shopnum, shopname, uid, created_at);
+                    params.put("shopnum", shopnum);
+                    params.put("whetherthecall", whetherthecall);
 
-
-                    // } else {
-
-                    // Error occurred in registration. Get the error
-                    // message
-                    //     String errorMsg = jObj.getString("error_msg");
-                    //     Toast.makeText(getApplicationContext(),
-                    //             errorMsg, Toast.LENGTH_LONG).show();
-                    //  }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                    return params;
                 }
 
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                //Log.e(TAG, "Registration Error: " + error.getMessage());
-                Toast.makeText(getActivity(),
-                        error.getMessage(), Toast.LENGTH_LONG).show();
-                hideDialog();
-            }
-        }) {
+            };
 
-            @Override
-            protected Map<String, String> getParams() {
-                // Posting params to register url
-                Map<String, String> params = new HashMap<String, String>();
+            // Adding request to request queue
+            AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
+        }
 
-                params.put("shopnum", shopnum);
-                params.put("whetherthecall", whetherthecall);
+        private void showDialog() {
+            // if (!pDialog.isShowing())
+            pDialog.show();
+        }
 
-                return params;
-            }
-
-        };
-
-        // Adding request to request queue
-        AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
-    }
-
-    private void showDialog() {
-        // if (!pDialog.isShowing())
-         pDialog.show();
-    }
-
-    private void hideDialog() {
-        //  if (pDialog.isShowing())
-        pDialog.dismiss();
-    }
+        private void hideDialog() {
+            //  if (pDialog.isShowing())
+            pDialog.dismiss();
+        }
 
 
 
@@ -669,8 +676,8 @@ public class MainActivity extends AppCompatActivity{
             if(mainListItems.isEmpty()){
 
             }
-           // viewpager = (ViewPager) findViewById(R.id.viewpager);
-           // viewpager.setAdapter(new adapter(getSupportFragmentManager()));
+            // viewpager = (ViewPager) findViewById(R.id.viewpager);
+            // viewpager.setAdapter(new adapter(getSupportFragmentManager()));
 
             task = new PWaitingTableDown();
         }

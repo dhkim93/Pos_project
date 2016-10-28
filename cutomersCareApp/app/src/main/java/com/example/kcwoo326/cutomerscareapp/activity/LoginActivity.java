@@ -112,7 +112,7 @@ public class LoginActivity extends Activity {
         pDialog.setMessage("Logging in ...");
         showDialog();
         StringRequest strReq = new StringRequest(Method.POST,
-                AppConfig.URL_LOGIN, new Response.Listener<String>() {
+                AppConfig.URL_POSLOGIN, new Response.Listener<String>() {
 
             @Override
             public void onResponse(String response) {
